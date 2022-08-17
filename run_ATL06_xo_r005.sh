@@ -4,7 +4,7 @@
 #
 usage() {
   echo " "
-  echo "Usage: $0 [-h|--help] [-c|--cycle 01 -c|--cycle 02...]"
+  echo "Usage: $0 [-h|--help] [-i|--icesheet Arctic...] [-r|--release 005...] [-c|--cycle 01 -c|--cycle 02...]"
   cat << EOF_USAGE
 
 TBD
@@ -19,8 +19,6 @@ EOF_USAGE
 #
 #-------------------------------------------------------------------
 #
-icesheet=Antarctic
-rel=005
 
 #
 # Check arguments
@@ -30,6 +28,8 @@ cycles=""
 while [ $# -gt 0 ] ; do
   case $1 in
     -h|--help) usage; exit 0;;
+    -i|--icesheet) shift; icesheet="$1";;
+    -r|--release) shift; rel="$1";;
     -c|--cycle) shift; cycles="${cycles} $1";;
     -*) echo ""; echo 'ERROR: Invalid argument'; usage; exit 3;;
   esac
@@ -42,7 +42,6 @@ done
 if [ "${cycles}" == "" ] ; then
   cycles=(14)
 fi
-
 
 # cycles=(01 02 03 04 05 06 07 08 09 10 11 12 13)
 # cycles=(14)
