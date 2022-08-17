@@ -36,11 +36,12 @@ echo "File indexing done time `date`"
 #done 
 
 echo "Making a collective ATL06 index for $work_dir"
-for file in $work_dir/index/*ATL06*.h5; do
-  ${script_path}/pointCollection/scripts/index_glob.py --dir_root=`pwd`/$work_dir/index/ -t h5_geoindex -H $hemisphere --index_file $work_dir/index/GeoIndex.h5 -g $file -v --Relative
+#for file in $work_dir/index/*ATL06*.h5; do
+#  ${script_path}/pointCollection/scripts/index_glob.py --dir_root=`pwd`/$work_dir/index/ -t h5_geoindex -H $hemisphere --index_file $work_dir/index/GeoIndex.h5 -g $file -v --Relative
   #rm $file
   #${script_path}/pointCollection/scripts/index_glob.py --dir_root=`pwd`/$work_dir/index/ -t h5_geoindex -H $hemisphere --index_file $work_dir/index/GeoIndex.h5 -g "$work_dir/index/*ATL06*.h5" -v --Relative
-done  
+#done  
+${script_path}/pointCollection/scripts/index_glob.py --dir_root=`pwd`/$work_dir/index/ -t h5_geoindex -H $hemisphere --index_file $work_dir/index/GeoIndex.h5 -g "$work_dir/index/*ATL06*.h5" -v --Relative
 
 cycle_tile_dir=$work_dir/tiles
 [ -d $cycle_tile_dir ] || mkdir -p $cycle_tile_dir

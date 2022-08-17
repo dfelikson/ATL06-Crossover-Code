@@ -91,7 +91,7 @@ done
 
 
    # Tile
-./make_ATL06_tiles_iceproc_v2.sh $hemisphere $work_dir/${cycle_dir} > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}.err
+#./make_ATL06_tiles_iceproc_v2.sh $hemisphere $work_dir/${cycle_dir} > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}.err
    # Crossovers
 ./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}.err
 

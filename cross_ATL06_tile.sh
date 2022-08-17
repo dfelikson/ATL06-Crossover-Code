@@ -24,13 +24,19 @@ echo " input directory: $tiles_dir"
 echo " output directory: $xo_dir"
 [ -d $xo_dir ] || mkdir -p $xo_dir
 
+#> xo_queue.txt
+#for file in `ls $tiles_dir/E*h5`; do
+   #echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $hemisphere $xo_dir >> xo_queue.txt
+#   echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file --different_cycles_only --delta_time_max 2592000 >> xo_queue.txt
+#   python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file --different_cycles_only --delta_time_max 2592000 
+#done
 > xo_queue.txt
 for file in `ls $tiles_dir/E*h5`; do
    #echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $hemisphere $xo_dir >> xo_queue.txt
-   echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file --different_cycles_only --delta_time_max 2592000 >> xo_queue.txt
+   echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file >> xo_queue.txt
 done
 
-parallel -j 40 < xo_queue.txt
+parallel -j 36 < xo_queue.txt
 #cat xo_queue.txt | parallel --ssh "ssh -q" --workdir . --env PYTHONPATH -S gs615-iceproc1,gs615-iceproc2,gs615-iceproc3,gs615-iceproc4
 echo "Crossovers done time `date`"
 echo " "
