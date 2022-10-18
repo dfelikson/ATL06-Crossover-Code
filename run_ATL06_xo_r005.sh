@@ -98,6 +98,19 @@ if [ ${single_cycle} == 0 ]; then
 
   done
 
+  # Look for multiple versions of the same file
+  for file_v01 in `ls ${work_dir}/${cycle_dir}/*01.h5`; do
+   
+     file_template=`echo $file_v01 | cut -d'_' -f1-4 | rev | cut -d'/' -f1 | rev`
+     n_files_all_versions=`ls -l ${work_dir}/${cycle_dir}/$file_template*h5 | wc -l`
+     if [ $n_files_all_versions -gt 1 ]; then
+        file_highest_version=`ls -ltr /cooler/I2-ASAS/rel${rel}/ATL06/$file_template*h5 | tail -1 | awk '{print $9}'`
+        filename_highest_version=`echo $file_highest_version | rev | cut -d'/' -f1 | rev`
+        rm -rf ${work_dir}/${cycle_dir}/$file_template*h5
+        ln -s $file_highest_version ${work_dir}/${cycle_dir}/$filename_highest_version
+     fi
+   
+   done
 
   # Tile
   ./make_ATL06_tiles_iceproc_v2.sh $hemisphere $work_dir/${cycle_dir} > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.err
@@ -138,7 +151,20 @@ else
 
     done
       echo "Copy done time `date`"
-
+  
+   # Look for multiple versions of the same file
+   for file_v01 in `ls ${work_dir}/${cycle_dir}/*01.h5`; do
+   
+      file_template=`echo $file_v01 | cut -d'_' -f1-4 | rev | cut -d'/' -f1 | rev`
+      n_files_all_versions=`ls -l ${work_dir}/${cycle_dir}/$file_template*h5 | wc -l`
+      if [ $n_files_all_versions -gt 1 ]; then
+         file_highest_version=`ls -ltr /cooler/I2-ASAS/rel${rel}/ATL06/$file_template*h5 | tail -1 | awk '{print $9}'`
+         filename_highest_version=`echo $file_highest_version | rev | cut -d'/' -f1 | rev`
+         rm -rf ${work_dir}/${cycle_dir}/$file_template*h5
+         ln -s $file_highest_version ${work_dir}/${cycle_dir}/$filename_highest_version
+      fi
+    
+   done
 
      # Tile
     ./make_ATL06_tiles_iceproc_v2.sh $hemisphere $work_dir/${cycle_dir} > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.err
