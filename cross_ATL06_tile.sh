@@ -9,6 +9,7 @@
 hemisphere=$1   # 1 or -1 for N or S
 tiles_dir=$2    # Source directory of ATL06 tiles, must be writable
 xo_dir=$3
+xtra_seg=$4
 
 if [ "$hemisphere" == "-1" ]; then
    mask_file="/home/dfelikso/Data/Quantarctica3/Glaciology/ALBMAP/ALBMAP_Mask.tif"
@@ -30,12 +31,19 @@ echo " output directory: $xo_dir"
 #   echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file --different_cycles_only --delta_time_max 2592000 >> xo_queue.txt
 #   python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file --different_cycles_only --delta_time_max 2592000 
 #done
-> xo_queue.txt
-for file in `ls $tiles_dir/E*h5`; do
+if [ ${xtra_seg} == 0 ] ; then 
+  > xo_queue.txt
+  for file in `ls $tiles_dir/E*h5`; do
    #echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $hemisphere $xo_dir >> xo_queue.txt
-   echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file >> xo_queue.txt
-done
-
+     echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file >> xo_queue.txt
+  done
+else	
+  > xo_queue.txt
+  for file in `ls $tiles_dir/E*h5`; do
+   #echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $hemisphere $xo_dir >> xo_queue.txt
+     echo python $script_path/pointCollection/scripts/cross_ATL06_tile.py $file $xo_dir --hemisphere $hemisphere --mask_file $mask_file -n ${xtra_seg} -dtm 864000 >> xo_queue.txt
+  done
+fi
 parallel -j 36 < xo_queue.txt
 #cat xo_queue.txt | parallel --ssh "ssh -q" --workdir . --env PYTHONPATH -S gs615-iceproc1,gs615-iceproc2,gs615-iceproc3,gs615-iceproc4
 echo "Crossovers done time `date`"
