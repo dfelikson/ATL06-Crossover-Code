@@ -4,7 +4,7 @@
 #
 usage() {
   echo " "
-  echo "Usage: $0 [-h|--help] [-c|--cycle 01 -c|--cycle 02...]"
+  echo "Usage: $0 [-h|--help] [-i|--icesheet Arctic] [-r|--release 006] [-c|--cycle 01 -c|--cycle 02...] [-x|--xtra 2] [-s|--single]"
   cat << EOF_USAGE
 
 TBD
@@ -19,10 +19,12 @@ EOF_USAGE
 #
 #-------------------------------------------------------------------
 #
-icesheet=Antarctic
+icesheet=Arctic
 rel=005
 single_cycle=0
 cycle_name=""
+work_dir=/ATL06_xo/mjohnson
+script_path="/home/mcjohn14/git"
 #
 # Check arguments
 #
@@ -31,9 +33,13 @@ cycles=""
 while [ $# -gt 0 ] ; do
   case $1 in
     -h|--help) usage; exit 0;;
+    -i|--icesheet) shift; icesheet="$1";;
+    -r|--release) shift; release="$1";;
     -c|--cycle) shift; cycles="${cycles} $1";;
     -x|--xtra) shift; xtra_seg="$1";;
     -s|--single) single_cycle=1;;
+    --work_dir) work_dir="$1";;
+    --script_path) script_path="$1";;
     -*) echo ""; echo 'ERROR: Invalid argument'; usage; exit 3;;
   esac
   shift
@@ -49,10 +55,7 @@ if [ "${xtra_seg}" == "" ] ; then
   xtra_seg=0
   seg_name=""
 fi
-#cycles=(03)
-# cycles=(14)
-work_dir=/ATL06_xo/mjohnson
-script_path="/home/mcjohn14/git"
+
 
 if [ "$icesheet" == "Arctic" ]; then
    hemisphere=1
@@ -65,7 +68,7 @@ else
    exit
 fi
 
-if [ ${single_cycle} == 0 ]; then
+if [ ${single_cycle} == 0 ]; then ##{{{
   for cycle in ${cycles[@]}; do
     cycle_name+=${cycle}
     cycle_dir=${icesheet}/r${rel}/c${cycle_name}
@@ -101,7 +104,7 @@ if [ ${single_cycle} == 0 ]; then
   # Look for multiple versions of the same file
   for file_v01 in `ls ${work_dir}/${cycle_dir}/*01.h5`; do
    
-     file_template=`echo $file_v01 | cut -d'_' -f1-4 | rev | cut -d'/' -f1 | rev`
+     file_template=`echo $file_v01 | rev | cut -d'/' -f1 | rev | cut -d'_' -f1-4`
      n_files_all_versions=`ls -l ${work_dir}/${cycle_dir}/$file_template*h5 | wc -l`
      if [ $n_files_all_versions -gt 1 ]; then
         file_highest_version=`ls -ltr /cooler/I2-ASAS/rel${rel}/ATL06/$file_template*h5 | tail -1 | awk '{print $9}'`
@@ -119,8 +122,8 @@ if [ ${single_cycle} == 0 ]; then
 
   # Cleanup
   \rm -rf /ATL06_xo/mjohnson/${cycle_dir}
-   
-else
+##}}}
+else ##{{{
   for cycle in ${cycles[@]}; do
     cycle_name+=${cycle}
   done
@@ -155,7 +158,7 @@ else
    # Look for multiple versions of the same file
    for file_v01 in `ls ${work_dir}/${cycle_dir}/*01.h5`; do
    
-      file_template=`echo $file_v01 | cut -d'_' -f1-4 | rev | cut -d'/' -f1 | rev`
+      file_template=`echo $file_v01 | rev | cut -d'/' -f1 | rev | cut -d'_' -f1-4`
       n_files_all_versions=`ls -l ${work_dir}/${cycle_dir}/$file_template*h5 | wc -l`
       if [ $n_files_all_versions -gt 1 ]; then
          file_highest_version=`ls -ltr /cooler/I2-ASAS/rel${rel}/ATL06/$file_template*h5 | tail -1 | awk '{print $9}'`
@@ -175,4 +178,4 @@ else
      \rm -rf /ATL06_xo/mjohnson/${cycle_dir}
   done   
 fi
-
+##}}}
