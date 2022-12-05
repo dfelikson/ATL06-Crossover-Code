@@ -37,9 +37,9 @@ while [ $# -gt 0 ] ; do
     -r|--release) shift; release="$1";;
     -c|--cycle) shift; cycles="${cycles} $1";;
     -x|--xtra) shift; xtra_seg="$1";;
-    -s|--single) single_cycle=1;;
-    --work_dir) work_dir="$1";;
-    --script_path) script_path="$1";;
+    -s|--single) shift; single_cycle=1;;
+    --work_dir) shift; work_dir="$1";;
+    --script_path) shift; script_path="$1";;
     -*) echo ""; echo 'ERROR: Invalid argument'; usage; exit 3;;
   esac
   shift
@@ -67,6 +67,21 @@ else
    echo Invalid icesheet!
    exit
 fi
+
+# Echo the setup
+echo icesheet: $icesheet
+echo release: $release
+echo cycles: $cycles
+echo xtra_seg: $xtra_seg
+echo single_cycle: $single_cycle
+echo work_dir: $work_dir
+echo script_path: $script_path
+echo
+
+echo This processing uses the following code versions:
+echo " " ATL06-Crossover-Code: `git log -1 | head -n 1`
+echo " " pointCollection: `(cd ${script_path}/pointCollection && git log -1 | head -n 1)`
+echo
 
 if [ ${single_cycle} == 0 ]; then ##{{{
   for cycle in ${cycles[@]}; do
@@ -121,7 +136,7 @@ if [ ${single_cycle} == 0 ]; then ##{{{
   ./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.err
 
   # Cleanup
-  \rm -rf /ATL06_xo/mjohnson/${cycle_dir}
+  \rm -rf ${work_dir}/${cycle_dir}
 ##}}}
 else ##{{{
   for cycle in ${cycles[@]}; do
@@ -175,7 +190,8 @@ else ##{{{
     ./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.err
 
      # Cleanup
-     \rm -rf /ATL06_xo/mjohnson/${cycle_dir}
+     \rm -rf ${work_dir}/${cycle_dir}
   done   
 fi
 ##}}}
+
