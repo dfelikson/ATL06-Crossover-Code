@@ -37,7 +37,7 @@ while [ $# -gt 0 ] ; do
     -r|--release) shift; release="$1";;
     -c|--cycle) shift; cycles="${cycles} $1";;
     -x|--xtra) shift; xtra_seg="$1";;
-    -s|--single) shift; single_cycle=1;;
+    -s|--single) single_cycle=1;;
     --work_dir) shift; work_dir="$1";;
     --script_path) shift; script_path="$1";;
     -*) echo ""; echo 'ERROR: Invalid argument'; usage; exit 3;;
@@ -68,21 +68,6 @@ else
    exit
 fi
 
-# Echo the setup
-echo icesheet: $icesheet
-echo release: $release
-echo cycles: $cycles
-echo xtra_seg: $xtra_seg
-echo single_cycle: $single_cycle
-echo work_dir: $work_dir
-echo script_path: $script_path
-echo
-
-echo This processing uses the following code versions:
-echo " " ATL06-Crossover-Code: `git log -1 | head -n 1`
-echo " " pointCollection: `(cd ${script_path}/pointCollection && git log -1 | head -n 1)`
-echo
-
 if [ ${single_cycle} == 0 ]; then ##{{{
   for cycle in ${cycles[@]}; do
     cycle_name+=${cycle}
@@ -98,6 +83,56 @@ if [ ${single_cycle} == 0 ]; then ##{{{
   fi
   done
   
+  if [ ! -d /ATL06_xo/${cycle_dir} ]; then
+    mkdir -p /ATL06_xo/${cycle_dir}
+  fi
+
+  # Echo the setup into a file in /ATL06_xo/$cycle_dir ##{{{
+  exec > /ATL06_xo/$cycle_dir/run_ATL06_xo_r005.out
+  echo -- Setup --
+  echo icesheet: $icesheet
+  echo release: $release
+  echo cycles: $cycles
+  echo xtra_seg: $xtra_seg
+  echo single_cycle: $single_cycle
+  echo work_dir: $work_dir
+  echo script_path: $script_path
+  echo -- Setup --
+  echo
+
+  echo -- Git repository checks --
+  basedir=$(dirname $0)
+  basedir_git_log=$(cd $basedir && git log -1 | head -n 1)
+  if [[ "$basedir_git_log" != *"commit"* ]]; then
+    echo The directory $basedir is not a git repository! Cannot log commit hash. Exiting! >&2
+    exit
+  fi
+  basedir_git_status=$(cd $basedir && git status --porcelain)
+  if [[ ! -z "$basedir_git_status" ]]; then
+     echo The code in the ATL06-Crossover-Code repository "(directory: $basedir)" has the following uncommitted changes. Exiting! >&2
+     echo "$basedir_git_status" >&2
+     exit
+  fi
+  pointCollectiondir=${script_path}/pointCollection
+  pointCollection_git_log=$(cd $pointCollectiondir && git log -1 | head -n 1)
+  if [[ "$pointCollection_git_log" != *"commit"* ]]; then
+    echo The directory $pointCollectiondir is not a git repository! Cannot log commit hash. Exiting! >&2
+    exit
+  fi
+  pointCollectiondir_git_status=$(cd $pointCollectiondir && git status --porcelain)
+  if [[ ! -z "$pointCollectiondir_git_status" ]]; then
+     echo The code in the pointCollection repository "(directory: $pointCollectiondir)" has the following uncommitted changes. Exiting! >&2
+     echo "$pointCollectiondir_git_status" >&2
+     exit
+  fi
+
+  echo This processing uses the following code versions:
+  echo " " ATL06-Crossover-Code: $basedir_git_log
+  echo " " pointCollection: $pointCollection_git_log
+  echo -- Git repository checks --
+  echo
+  ##}}}
+
   for cycle in ${cycles[@]}; do
     echo processing cycle $cycle
 
@@ -131,9 +166,9 @@ if [ ${single_cycle} == 0 ]; then ##{{{
    done
 
   # Tile
-  ./make_ATL06_tiles_iceproc.sh $hemisphere $work_dir/${cycle_dir} > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.err
+  ./make_ATL06_tiles_iceproc.sh $hemisphere $work_dir/${cycle_dir} $script_path > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}${seg_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}${seg_name}.err
   # Crossovers
-  ./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.err
+  ./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} $script_path > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}${seg_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}${seg_name}.err
 
   # Cleanup
   \rm -rf ${work_dir}/${cycle_dir}
@@ -154,6 +189,56 @@ else ##{{{
     mkdir -p ${work_dir}/${cycle_dir}
   fi	
  
+  if [ ! -d /ATL06_xo/${cycle_dir} ]; then
+    mkdir -p /ATL06_xo/${cycle_dir}
+  fi	
+
+  # Echo the setup into a file in /ATL06_xo/$cycle_dir ##{{{
+  exec > /ATL06_xo/$cycle_dir/run_ATL06_xo_r005.out
+  echo -- Setup --
+  echo icesheet: $icesheet
+  echo release: $release
+  echo cycles: $cycles
+  echo xtra_seg: $xtra_seg
+  echo single_cycle: $single_cycle
+  echo work_dir: $work_dir
+  echo script_path: $script_path
+  echo -- Setup --
+  echo
+
+  echo -- Git repository checks --
+  basedir=$(dirname $0)
+  basedir_git_log=$(cd $basedir && git log -1 | head -n 1)
+  if [[ "$basedir_git_log" != *"commit"* ]]; then
+    echo The directory $basedir is not a git repository! Cannot log commit hash. Exiting! >&2
+    exit
+  fi
+  basedir_git_status=$(cd $basedir && git status --porcelain)
+  if [[ ! -z "$basedir_git_status" ]]; then
+     echo The code in the ATL06-Crossover-Code repository "(directory: $basedir)" has the following uncommitted changes. Exiting! >&2
+     echo "$basedir_git_status" >&2
+     exit
+  fi
+  pointCollectiondir=${script_path}/pointCollection
+  pointCollection_git_log=$(cd $pointCollectiondir && git log -1 | head -n 1)
+  if [[ "$pointCollection_git_log" != *"commit"* ]]; then
+    echo The directory $pointCollectiondir is not a git repository! Cannot log commit hash. Exiting! >&2
+    exit
+  fi
+  pointCollectiondir_git_status=$(cd $pointCollectiondir && git status --porcelain)
+  if [[ ! -z "$pointCollectiondir_git_status" ]]; then
+     echo The code in the pointCollection repository "(directory: $pointCollectiondir)" has the following uncommitted changes. Exiting! >&2
+     echo "$pointCollectiondir_git_status" >&2
+     exit
+  fi
+
+  echo This processing uses the following code versions:
+  echo " " ATL06-Crossover-Code: $basedir_git_log
+  echo " " pointCollection: $pointCollection_git_log
+  echo -- Git repository checks --
+  echo
+  ##}}}
+
   for cycle in ${cycles[@]}; do
     echo processing cycle $cycle
 
@@ -185,9 +270,9 @@ else ##{{{
    done
 
      # Tile
-    ./make_ATL06_tiles_iceproc.sh $hemisphere $work_dir/${cycle_dir} > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.err
+    ./make_ATL06_tiles_iceproc.sh $hemisphere $work_dir/${cycle_dir} $script_path > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}${seg_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${rel}_c${cycle_name}${seg_name}.err
      # Crossovers
-    ./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}_${seg_name}.err
+    ./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} $script_path > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}${seg_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${rel}_c${cycle_name}${seg_name}.err
 
      # Cleanup
      \rm -rf ${work_dir}/${cycle_dir}

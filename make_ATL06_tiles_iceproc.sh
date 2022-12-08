@@ -10,7 +10,7 @@ hemisphere=$1   # 1 or -1 for N or S
 work_dir=$2
 # release=$3      # Not actually used here, so commented
 # cycle=$4        # Source directory of ATL06 files, must be writable
-script_path="/home/mcjohn14/git"
+script_path=$3
 
 
 [ -d $work_dir/index ] || mkdir $work_dir/index
@@ -22,13 +22,13 @@ for file in $work_dir/*ATL06*.h5; do
     this_file_index=$work_dir/index/`basename $file`
     [ -f $this_file_index ] && continue
     echo $file
-#    echo "${script_path}/pointCollection/scripts/index_glob.py -t ATL06 -H $hemisphere --index_file $this_file_index -g $file"  >> file_queue.txt
-    ${script_path}/pointCollection/scripts/index_glob.py -t ATL06 -H $hemisphere --index_file $this_file_index -g $file
+    echo "${script_path}/pointCollection/scripts/index_glob.py -t ATL06 -H $hemisphere --index_file $this_file_index -g $file"  >> file_queue.txt
+    #${script_path}/pointCollection/scripts/index_glob.py -t ATL06 -H $hemisphere --index_file $this_file_index -g $file
     #rm $file
 done
 
 #pboss.py -s file_queue.txt -j 8 -w -p
-#parallel -j 40 < file_queue.txt
+parallel -j 36 < file_queue.txt
 #rm $work_dir/ATL06*.h5
 echo "File indexing done time `date`"
 #for file in $work_dir/index/*ATL06*.h5; do
@@ -51,7 +51,7 @@ ${script_path}/pointCollection/scripts/make_tiles.py -H $hemisphere -i $work_dir
 #${script_path}/pointCollection/scripts/make_tiles.py -H $hemisphere -i $work_dir/index/GeoIndex.h5 -W 100000 -t ATL06 -o $cycle_tile_dir -j ${script_path}/ATL11/ATL06_field_dict.json
 # run the queue
 echo "running the queue for $work_dir"
-parallel -j 40 < tile_queue.txt
+parallel -j 36 < tile_queue.txt
 echo "tile generation done time `date`"
 
 echo "indexing tiles for $work_dir"
@@ -62,7 +62,7 @@ popd
 
 #python3 geoindex_test_plot.py $cycle_tile_dir/GeoIndex.h5
 
-#\rm file_queue.txt tile_queue.txt
+\rm file_queue.txt tile_queue.txt
 echo "Finished processing for hemisphere $hemisphere and cycle_dir $work_dir/tiles"
 echo "Stop time `date`"
 

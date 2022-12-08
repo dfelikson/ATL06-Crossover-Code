@@ -17,7 +17,7 @@ else
    mask_file="/home/dfelikso/Data/GIMP/GimpIceMask_90m.tif"
 fi
 
-script_path="/home/mcjohn14/git"
+script_path=$5
 
 # Find crossovers
 echo "Finding crossovers"
