@@ -47,7 +47,7 @@ cycle_tile_dir=$work_dir/tiles
 [ -d $cycle_tile_dir ] || mkdir -p $cycle_tile_dir
 echo "making a queue of indexing commands for $work_dir"
 # make a queue of tiles
-${script_path}/pointCollection/scripts/make_tiles.py -H $hemisphere -i $work_dir/index/GeoIndex.h5 -W 100000 -t ATL06 -o $cycle_tile_dir -q tile_queue.txt -j ${script_path}/ATL11/ATL06_field_dict.json
+${script_path}/pointCollection/scripts/make_tiles.py -H $hemisphere -i $work_dir/index/GeoIndex.h5 -W 100000 -t ATL06 -o $cycle_tile_dir -q tile_queue.txt -j ATL06_field_dict.json
 #${script_path}/pointCollection/scripts/make_tiles.py -H $hemisphere -i $work_dir/index/GeoIndex.h5 -W 100000 -t ATL06 -o $cycle_tile_dir -j ${script_path}/ATL11/ATL06_field_dict.json
 # run the queue
 echo "running the queue for $work_dir"
