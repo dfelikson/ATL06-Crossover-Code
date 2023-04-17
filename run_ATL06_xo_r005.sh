@@ -177,7 +177,7 @@ if [ ${single_cycle} == 0 ]; then ##{{{
   #./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} $script_path
 
   # Cleanup
-  #\rm -rf ${work_dir}/${cycle_dir}
+  \rm -rf ${work_dir}/${cycle_dir}
 ##}}}
 else ##{{{
   for cycle in ${cycles[@]}; do
@@ -286,7 +286,7 @@ else ##{{{
     #echo cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} $script_path
 
      # Cleanup
-     #\rm -rf ${work_dir}/${cycle_dir}
+     \rm -rf ${work_dir}/${cycle_dir}
   done   
 fi
 ##}}}
