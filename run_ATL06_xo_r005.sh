@@ -31,18 +31,18 @@ script_path="/home/mcjohn14/git"
 TARGET_DIR=""
 cycles=""
 while [ $# -gt 0 ] ; do
-  case $1 in
-    -h|--help) usage; exit 0;;
-    -i|--icesheet) shift; icesheet="$1";;
-    -r|--release) shift; release="$1";;
-    -c|--cycle) shift; cycles="${cycles} $1";;
-    -x|--xtra) shift; xtra_seg="$1";;
-    --work_dir) shift; work_dir="$1";;
-    --script_path) shift; script_path="$1";;
-    --test_run) test_run=1;;
-    -*) echo ""; echo 'ERROR: Invalid argument'; usage; exit 3;;
-  esac
-  shift
+   case $1 in
+      -h|--help) usage; exit 0;;
+      -i|--icesheet) shift; icesheet="$1";;
+      -r|--release) shift; release="$1";;
+      -c|--cycle) shift; cycles="${cycles} $1";;
+      -x|--xtra) shift; xtra_seg="$1";;
+      --work_dir) shift; work_dir="$1";;
+      --script_path) shift; script_path="$1";;
+      --test_run) test_run=1;;
+      -*) echo ""; echo 'ERROR: Invalid argument'; usage; exit 3;;
+   esac
+   shift
 done
 
 #if [ `whoami` != "atl06_xo" ]; then
@@ -54,11 +54,11 @@ done
 # Determine cycles to be used
 #
 if [ "${cycles}" == "" ] ; then
-  cycles=(14)
+   cycles=(14)
 fi
 if [ "${xtra_seg}" == "" ] ; then
-  xtra_seg=0
-  seg_name=""
+   xtra_seg=0
+   seg_name=""
 fi
 
 
@@ -74,22 +74,22 @@ else
 fi
 
 for cycle in ${cycles[@]}; do
-  cycle_name+=${cycle}
+   cycle_name+=${cycle}
 done
 
 cycle_dir=${icesheet}/r${release}/c${cycle_name}
 
 if [ ${xtra_seg} != 0 ] ; then
-  seg_name=_${xtra_seg}_extra_segments  
-  cycle_dir+=${seg_name}
+   seg_name=_${xtra_seg}_extra_segments  
+   cycle_dir+=${seg_name}
 fi      
 
 if [ ! -d ${work_dir}/${cycle_dir} ]; then
-  mkdir -p ${work_dir}/${cycle_dir}
+   mkdir -p ${work_dir}/${cycle_dir}
 fi	
 
 if [ ! -d /ATL06_xo/${cycle_dir} ]; then
-  mkdir -p /ATL06_xo/${cycle_dir}
+   mkdir -p /ATL06_xo/${cycle_dir}
 fi	
 
 # Echo the setup into a file in /ATL06_xo/$cycle_dir ##{{{
@@ -141,44 +141,43 @@ if [ "$test_run" != "1" ]; then
 fi
 ##}}}
 
+echo "[`date`] Starting run script"
+
 for cycle in ${cycles[@]}; do
-  echo processing cycle $cycle
+   echo " Linking ATL06 files for cycle $cycle"
+   for reg in "${regions[@]}"; do
+      for file in `ls /cooler/I2-ASAS/rel${release}/ATL06/ATL06_*_????${cycle}${reg}_${release}_*.h5`; do
+         newfile=`echo $file | rev | cut -d'/' -f1 | rev`
+         ln -s $file ${work_dir}/${cycle_dir}/$newfile
+      done
+   done
+done
+echo "[`date`] Linking finished"
 
+# Look for multiple versions of the same file
+for file_v01 in `ls ${work_dir}/${cycle_dir}/*01.h5`; do
+   file_template=`echo $file_v01 | rev | cut -d'/' -f1 | rev | cut -d'_' -f1-4`
+   n_files_all_versions=`ls -l ${work_dir}/${cycle_dir}/$file_template*h5 | wc -l`
+   if [ $n_files_all_versions -gt 1 ]; then
+      file_highest_version=`ls -ltr /cooler/I2-ASAS/rel${release}/ATL06/$file_template*h5 | tail -1 | awk '{print $9}'`
+      filename_highest_version=`echo $file_highest_version | rev | cut -d'/' -f1 | rev`
+      rm -rf ${work_dir}/${cycle_dir}/$file_template*h5
+      ln -s $file_highest_version ${work_dir}/${cycle_dir}/$filename_highest_version
+   fi
+done
 
-  echo "Start time `date`"
+# Tile
+echo "[`date`] Making tiles"
+./make_ATL06_tiles_iceproc.sh $hemisphere $work_dir/${cycle_dir} $script_path > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${release}_c${cycle_name}${seg_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${release}_c${cycle_name}${seg_name}.err
+#echo make_ATL06_tiles_iceproc.sh $hemisphere $work_dir/${cycle_dir} $script_path
 
-  for reg in "${regions[@]}"; do
+# Crossovers
+echo "[`date`] Finding crossovers"
+./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} $script_path > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${release}_c${cycle_name}${seg_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${release}_c${cycle_name}${seg_name}.err
+#echo cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} $script_path
 
-    for file in `ls /cooler/I2-ASAS/rel${release}/ATL06/ATL06_*_????${cycle}${reg}_${release}_*.h5`; do
-      newfile=`echo $file | rev | cut -d'/' -f1 | rev`
-      ln -s $file ${work_dir}/${cycle_dir}/$newfile
-    done
+# Cleanup
+\rm -rf ${work_dir}/${cycle_dir}
 
-  done
-    echo "Copy done time `date`"
-
- # Look for multiple versions of the same file
- for file_v01 in `ls ${work_dir}/${cycle_dir}/*01.h5`; do
- 
-    file_template=`echo $file_v01 | rev | cut -d'/' -f1 | rev | cut -d'_' -f1-4`
-    n_files_all_versions=`ls -l ${work_dir}/${cycle_dir}/$file_template*h5 | wc -l`
-    if [ $n_files_all_versions -gt 1 ]; then
-       file_highest_version=`ls -ltr /cooler/I2-ASAS/rel${release}/ATL06/$file_template*h5 | tail -1 | awk '{print $9}'`
-       filename_highest_version=`echo $file_highest_version | rev | cut -d'/' -f1 | rev`
-       rm -rf ${work_dir}/${cycle_dir}/$file_template*h5
-       ln -s $file_highest_version ${work_dir}/${cycle_dir}/$filename_highest_version
-    fi
-  
- done
-
-  # Tile
-  ./make_ATL06_tiles_iceproc.sh $hemisphere $work_dir/${cycle_dir} $script_path > out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${release}_c${cycle_name}${seg_name}.out 2> out_and_err_files/make_ATL06_tiles_iceproc_${icesheet}_rel${release}_c${cycle_name}${seg_name}.err
-  #echo make_ATL06_tiles_iceproc.sh $hemisphere $work_dir/${cycle_dir} $script_path
-  # Crossovers
-  ./cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} $script_path > out_and_err_files/cross_ATL06_tile_${icesheet}_rel${release}_c${cycle_name}${seg_name}.out 2> out_and_err_files/cross_ATL06_tile_${icesheet}_rel${release}_c${cycle_name}${seg_name}.err
-  #echo cross_ATL06_tile.sh $hemisphere $work_dir/${cycle_dir}/tiles /ATL06_xo/${cycle_dir} ${xtra_seg} $script_path
-
-   # Cleanup
-   \rm -rf ${work_dir}/${cycle_dir}
-done   
+echo "[`date`] Run script complete"
 
