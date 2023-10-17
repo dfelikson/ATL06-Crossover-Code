@@ -20,11 +20,11 @@ EOF_USAGE
 #-------------------------------------------------------------------
 #
 icesheet=Arctic
-release=005
+release=006
 single_cycle=0
 cycle_name=""
-work_dir=/ATL06_xo/mjohnson
-script_path="/home/mcjohn14/git"
+work_dir=/work3/$USER
+script_path="~"
 #
 # Check arguments
 #
