@@ -24,7 +24,7 @@ release=006
 single_cycle=0
 cycle_name=""
 work_dir=/work3/$USER
-script_path="~"
+script_path="$HOME"
 #
 # Check arguments
 #
