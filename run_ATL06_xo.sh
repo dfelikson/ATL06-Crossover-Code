@@ -77,8 +77,8 @@ if [ "${cycles}" != "" ] ; then
   for cycle in ${cycles[@]}; do
      cycle_name+=${cycle}
   done
-  cycle_dir=${icesheet}/r${release}/c${cycle_name}
-  out_err_suffix=c${cycle_name}
+  cycle_dir=${icesheet}/r${release}/${cycle_name}
+  out_err_suffix=${cycle_name}
 
 elif [ "${start_date}" != "" ] && [ "${end_date}" != "" ]; then
    start_time=000000
