@@ -177,11 +177,11 @@ elif [ "${start_date}" != "" ] && [ "${end_date}" != "" ]; then
       done
    done
 fi
-echo "[`date`] Linking finished"
 
 # Look for multiple versions of the same file
-for file_v01 in `ls ${work_dir}/${cycle_dir}/*01.h5`; do
-   file_template=`echo $file_v01 | rev | cut -d'/' -f1 | rev | cut -d'_' -f1-4`
+file_list=`ls -l ${work_dir}/${cycle_dir}/*.h5 | awk '{print $9}' | uniq`
+for file in $file_list; do
+   file_template=`echo $file | rev | cut -d'/' -f1 | rev | cut -d'_' -f1-4`
    n_files_all_versions=`ls -l ${work_dir}/${cycle_dir}/$file_template*h5 | wc -l`
    if [ $n_files_all_versions -gt 1 ]; then
       file_highest_version=`ls -ltr /cooler/I2-ASAS/rel${release}/ATL06/$file_template*h5 | tail -1 | awk '{print $9}'`
@@ -190,6 +190,7 @@ for file_v01 in `ls ${work_dir}/${cycle_dir}/*01.h5`; do
       ln -s $file_highest_version ${work_dir}/${cycle_dir}/$filename_highest_version
    fi
 done
+echo "[`date`] Linking finished"
 
 # Tile
 echo "[`date`] Making tiles"
