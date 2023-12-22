@@ -170,7 +170,7 @@ elif [ "${start_date}" != "" ] && [ "${end_date}" != "" ]; then
    echo " Linking by time range $start_date_time-$end_date_time"
    for reg in "${regions[@]}"; do
       file_list=`find /cooler/I2-ASAS/rel006/ATL06/ -type f -name "ATL06_*_??????${reg}_${release}_*.h5" | \
-         awk '{print $9}' | awk -v start_date_time=$start_date_time -v end_date_time=$end_date_time -F '_' '{if ($2>start_date_time && $2<end_date_time) print $0}'`
+         awk -v start_date_time=$start_date_time -v end_date_time=$end_date_time -F '_' '{if ($2>start_date_time && $2<end_date_time) print $0}'`
       for file in $file_list; do
          newfile=`echo $file | rev | cut -d'/' -f1 | rev`
          ln -s $file ${work_dir}/${cycle_dir}/$newfile
