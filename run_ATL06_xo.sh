@@ -159,7 +159,7 @@ if [ "${cycles}" != "" ] ; then
    for cycle in ${cycles[@]}; do
       echo " Linking ATL06 files for cycle $cycle"
       for reg in "${regions[@]}"; do
-         for file in `ls /cooler/I2-ASAS/rel${release}/ATL06/ATL06_*_????${cycle}${reg}_${release}_*.h5`; do
+         for file in `find /cooler/I2-ASAS/rel006/ATL06/ -type f -name "ATL06_*_????${cycle}${reg}_${release}_*.h5"`; do
             newfile=`echo $file | rev | cut -d'/' -f1 | rev`
             ln -s $file ${work_dir}/${cycle_dir}/$newfile
          done
@@ -169,7 +169,7 @@ elif [ "${start_date}" != "" ] && [ "${end_date}" != "" ]; then
    # Link ATL06s by time range
    echo " Linking by time range $start_date_time-$end_date_time"
    for reg in "${regions[@]}"; do
-      file_list=`ls -l /cooler/I2-ASAS/rel${release}/ATL06/ATL06_*_??????${reg}_${release}_*.h5 | \
+      file_list=`find /cooler/I2-ASAS/rel006/ATL06/ -type f -name "ATL06_*_??????${reg}_${release}_*.h5" | \
          awk '{print $9}' | awk -v start_date_time=$start_date_time -v end_date_time=$end_date_time -F '_' '{if ($2>start_date_time && $2<end_date_time) print $0}'`
       for file in $file_list; do
          newfile=`echo $file | rev | cut -d'/' -f1 | rev`
