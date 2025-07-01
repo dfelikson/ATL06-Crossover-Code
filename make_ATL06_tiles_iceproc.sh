@@ -13,7 +13,7 @@ work_dir=$2
 script_path=$3
 
 
-[ -d $work_dir/index ] || mkdir $work_dir/index
+[ -d $work_dir/index ] || mkdir -p $work_dir/index
 
 echo "Indexing individual ATL06es for $work_dir"
 
